@@ -7,7 +7,12 @@ const checkUser = require('../services/validate');
 
 
 router.post('/', async function(req, res, next){
+    if(req.body.email == "" || req.body.password == ""){
+        res.json({"error": "Please enter all the details"});
+        return;
+    }
     const response = await checkUser.check(req.body);
+    console.log(response);
     if(response){
         const user = await checkUser.getUserByEmail(req.body.email);
         bcrypt.compare(req.body.password, user[0].password)
@@ -37,15 +42,15 @@ router.post('/', async function(req, res, next){
                 // });
             }
             else{
-                res.json({"message": "Incorrect username or password"});
+                res.json({"error": "Incorrect email or password"});
             }
         })
     }
     else if(!response){
-        res.json({"message": "Incorrect username or password"});
+        res.json({"error": "Account with this email id does not exist. Please Register first."});
     }
     else{
-        next(new Error("Incorrect username or password"));
+        res.json({"error": "Incorrect email or password"});
     }
 });
 
